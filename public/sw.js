@@ -1,0 +1,3 @@
+self.addEventListener('install',()=>self.skipWaiting());
+self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
+self.addEventListener('fetch',e=>{if(e.request.mode==='navigate'&&new URL(e.request.url).origin===self.location.origin)e.respondWith(fetch(e.request).catch(()=>new Response('<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>Eggselent Timers · Offline</title><body style="background:#f8f9f5;color:#486442;font:18px system-ui;padding:12vh 8vw"><h1>You’re offline.</h1><p>Reconnect to open the latest farm records. No changes are saved offline.</p><a href="/">Try again</a></body>',{status:503,headers:{'Content-Type':'text/html;charset=utf-8'}})))});

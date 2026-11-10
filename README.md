@@ -1,6 +1,6 @@
 # Eggselent Timers — family beta 0.1.0-beta.1
 
-Independent Android-installable web app for Tenebrarum Rura. React + Vite frontend; Supabase email/password authentication and private shared PostgreSQL data. No ChatGPT dependency at runtime.
+Independent Android-installable web app for My family farm. React + Vite frontend; Supabase email/password authentication and private shared PostgreSQL data. No ChatGPT dependency at runtime.
 
 ## Status
 
@@ -60,7 +60,7 @@ In-app “Add family access” reserves an email for 14 days; it does NOT send a
 
 ## 5. Start the family farm
 
-1. Create your app account with `owner@example.com`, your chosen password, and display name Matt.
+1. Create your app account with `owner@example.com`, your chosen password, and display name Owner.
 2. Confirm the email, then sign in. Your farm is created automatically.
 3. Family & app → Import farm backup. Select the separate private `eggselent-farm-backup.json` supplied with this package. Confirm the records before retiring the old app.
 4. Family & app → Add family access → enter Mom's exact email.

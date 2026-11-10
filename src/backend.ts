@@ -1,0 +1,7 @@
+import {createClient} from '@supabase/supabase-js';
+export const configured=!!import.meta.env.VITE_SUPABASE_URL&&!!import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+export const supabase=createClient(import.meta.env.VITE_SUPABASE_URL||'https://unconfigured.supabase.co',import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY||'not-configured');
+export let household:any=null;
+export async function bootstrap(){const {data:{user}}=await supabase.auth.getUser();if(!user)throw Error('Please sign in.');const {data,error}=await supabase.rpc('et_bootstrap',{p_name:user.user_metadata?.name||'Farm member'});if(error)throw Error(error.message);household={...data,user};return household;}
+export async function rpc(name:string,args:any={}){const {data,error}=await supabase.rpc(name,args);if(error)throw Error(error.message);return data;}
+export async function farmRequest(_url:string,options?:any){try{if(!household?.farm)throw Error('No farm membership. Refresh your invitation status.');let result;if(options?.method==='PUT'){const {data,revision}=JSON.parse(options.body);result=await rpc('et_save',{p_farm:household.farm,p_revision:revision,p_data:data});}else{const {data,error}=await supabase.from('et_farms').select('data,revision').eq('id',household.farm).single();if(error)throw Error(error.message);result=data;}return {ok:true,json:async()=>result};}catch(e:any){return {ok:false,json:async()=>({error:e.message})};}}
