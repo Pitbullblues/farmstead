@@ -1,0 +1,11 @@
+import {execFileSync} from 'node:child_process';
+import fs from 'node:fs';
+import sharp from 'sharp';
+if(!fs.existsSync('android')) execFileSync('npx',['cap','add','android'],{stdio:'inherit'});
+execFileSync('npx',['cap','sync','android'],{stdio:'inherit'});
+const gradle='android/app/build.gradle';
+fs.writeFileSync(gradle,fs.readFileSync(gradle,'utf8').replace('versionName "1.0"','versionName "0.1.0-beta.1"'));
+const manifest='android/app/src/main/AndroidManifest.xml';
+fs.writeFileSync(manifest,fs.readFileSync(manifest,'utf8').replace('android:allowBackup="true"','android:allowBackup="false"'));
+for(const [d,size] of Object.entries({mdpi:48,hdpi:72,xhdpi:96,xxhdpi:144,xxxhdpi:192})) for(const n of ['ic_launcher','ic_launcher_round','ic_launcher_foreground']) await sharp('public/icon-512.png').resize(size,size).toFile(`android/app/src/main/res/mipmap-${d}/${n}.png`);
+for(const f of ['ic_launcher.xml','ic_launcher_round.xml']) fs.writeFileSync(`android/app/src/main/res/mipmap-anydpi-v26/${f}`,'<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@android:color/white"/><foreground android:drawable="@mipmap/ic_launcher_foreground"/></adaptive-icon>');

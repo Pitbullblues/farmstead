@@ -1,16 +1,18 @@
+import {Capacitor} from '@capacitor/core';
 import React,{useEffect,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {Egg,LogIn} from 'lucide-react';
 import Farm from './Farm';
 import {bootstrap,configured,supabase} from './backend';
 import './style.css';
+const authRedirect='https://farmstead-psi.vercel.app/';
 function App(){const [session,setSession]=useState<any>(null),[house,setHouse]=useState<any>(null),[loading,setLoading]=useState(true),[mode,setMode]=useState('login'),[error,setError]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);
-useEffect(()=>{const {data:{subscription}}=supabase.auth.onAuthStateChange((event,s)=>{setSession(s);setHouse((previous:any)=>previous?.user?.id===s?.user?.id?previous:null);setError('');if(event==='PASSWORD_RECOVERY')setMode('update');setLoading(false)});supabase.auth.getSession().then(({data})=>{setSession(data.session);setLoading(false)});if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});return()=>subscription.unsubscribe()},[]);
+useEffect(()=>{const {data:{subscription}}=supabase.auth.onAuthStateChange((event,s)=>{setSession(s);setHouse((previous:any)=>previous?.user?.id===s?.user?.id?previous:null);setError('');if(event==='PASSWORD_RECOVERY')setMode('update');setLoading(false)});supabase.auth.getSession().then(({data})=>{setSession(data.session);setLoading(false)});if(!Capacitor.isNativePlatform()&&'serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});return()=>subscription.unsubscribe()},[]);
 async function join(){setBusy(true);setError('');try{setHouse(await bootstrap())}catch(e:any){setError(e.message.includes('et_bootstrap')?'Database setup is not finished. Apply the SQL files in Supabase, then retry.':e.message)}finally{setBusy(false)}}
 useEffect(()=>{if(session&&mode!=='update')join()},[session?.user?.id,mode]);
 async function auth(e:React.FormEvent<HTMLFormElement>){e.preventDefault();setError('');setMessage('');setBusy(true);const f:any=Object.fromEntries(new FormData(e.currentTarget));try{let result:any;
-if(mode==='signup'){result=await supabase.auth.signUp({email:f.email,password:f.password,options:{data:{name:f.name},emailRedirectTo:location.origin}});if(result.error)throw result.error;setMessage('Check your email to confirm your account, then sign in.');}
-else if(mode==='reset'){result=await supabase.auth.resetPasswordForEmail(f.email,{redirectTo:location.origin});if(result.error)throw result.error;setMessage('If that account exists, a reset link has been requested. Check your inbox.');}
+if(mode==='signup'){result=await supabase.auth.signUp({email:f.email,password:f.password,options:{data:{name:f.name},emailRedirectTo:authRedirect}});if(result.error)throw result.error;setMessage('Check your email to confirm your account, then sign in.');}
+else if(mode==='reset'){result=await supabase.auth.resetPasswordForEmail(f.email,{redirectTo:authRedirect});if(result.error)throw result.error;setMessage('If that account exists, a reset link has been requested. Check your inbox.');}
 else if(mode==='update'){result=await supabase.auth.updateUser({password:f.password});if(result.error)throw result.error;setMode('login');setMessage('Password updated.');}
 else{result=await supabase.auth.signInWithPassword({email:f.email,password:f.password});if(result.error)throw result.error;}
 }catch(e:any){setError(e.message)}finally{setBusy(false)}}
